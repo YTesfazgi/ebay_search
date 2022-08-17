@@ -1,0 +1,57 @@
+<style>
+      h2 {
+        padding: 20;
+        padding-bottom: 0;
+        margin: 0;
+      }
+      
+      h3 {
+        margin: 0;
+        margin-top: 4px;
+      }
+
+      p {
+        margin-bottom: 0;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      li {
+        margin-top: 12px;
+      }
+
+      .bold {
+        font-weight: bold;
+      }
+
+      .small {
+        font-size: 14px;
+      }
+
+      .search {
+        padding: 0;
+        padding-left: 20;
+        margin-bottom: 0;
+      }
+</style>
+
+<h1>eBay Search Listings</h1>
+
+<form class="search" action="http://localhost:3000/search" method="get">
+  <label>Search:</label>
+  <input type="text" name="search_term" value="{{searchTerm}}" />
+</form>
+
+<h2>Listings for "{{searchTerm}}"</h2>
+
+<ul>
+  {{#each items}}
+    <li>
+        <p class="bold">{{this.title}}</p>
+        <span class="small">Condition: {{this.condition}}</span>
+        <h3>${{this.price.value}}</h3>
+    </li>
+  {{/each}}
+</ul>

@@ -63,7 +63,6 @@ fastify.get('/search', (request, reply) => {
       })
       .then((ebaySearchResults) => ebaySearchResults.json())
       .then((json) => {
-        console.log(typeof json.itemSummaries[0].image.imageUrl)
         reply.header('Content-Type', 'text/html')
         reply.view("./views/helloworld.hbs", { items: json.itemSummaries, searchTerm: searchTerm })
       })

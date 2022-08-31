@@ -2,20 +2,32 @@
 import 'dotenv/config'
 import Fastify from 'fastify'
 import fetch from "node-fetch"
-import fs from 'fs'
-const fastify = Fastify({
-  logger: true
-})
-import fastifyFormbody from '@fastify/formbody'
-fastify.register(fastifyFormbody)
+import fs from 'fs';
 
+import fastifyFormbody from '@fastify/formbody';
 import FastifyView from '@fastify/view'
+import fastifySession from '@fastify/session'
+import fastifyCookie from '@fastify/cookie'
 import Handlebars from 'handlebars'
 
+const fastify = Fastify({
+  logger: true
+});
+
+fastify.register(fastifyFormbody);
 fastify.register(FastifyView, {
   engine: {
     handlebars: Handlebars,
   },
+});
+fastify.register(fastifyCookie, {
+  secret: "my-secret-cookie-signature", // for cookies signature
+  parseOptions: {}     // options for parsing cookies
+});
+fastify.register(fastifySession, {secret: 'a secret with minimum length of 32 characters'});
+fastify.addHook('preHandler', (request, reply, next) => {
+  request.session.user = {name: 'max'};
+  next();
 });
 
 // runs home page
@@ -34,13 +46,16 @@ params.append('scope','https://api.ebay.com/oauth/api_scope')
 
 // this handles get requests
 fastify.get('/', function (request, reply) {
-  reply.type("text/html")
-  reply.send(indexHtml)
+  reply.header('Content-Type', 'text/html')
+  reply.view("./views/homepage.hbs", { searchTerm: request.cookies.searchTerm
+  })
 })
 
 fastify.get('/search', (request, reply) => {
   
   var searchTerm = String(request.query.search_term);
+
+  reply.cookie('searchTerm', request.query.search_term);
 
   // executing HTTP request using fetch, then calling eBay API
   fetch(oauthEndpoint, {
